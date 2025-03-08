@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bombillo Regulable</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .bulb {
+            width: 130px;
+            height: 170px;
+            background-color: #888;
+            border-radius: 50% 50% 40% 40%;
+            position: relative;
+            box-shadow: 0px 0px 40px rgba(255, 255, 0, 0);
+            transition: box-shadow 0.3s, background-color 0.3s;
+        }
+        .base {
+            width: 50px;
+            height: 35px;
+            background-color: #666;
+            margin: auto;
+            border-radius: 5px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider-switch {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider-switch:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider-switch {
+            background-color: #2196F3;
+        }
+        input:checked + .slider-switch:before {
+            transform: translateX(26px);
+        }
+        .slider {
+            width: 80%;
+            margin-top: 10px;
+        }
+        .brightness-value {
+            font-size: 18px;
+            margin-top: 5px;
+        }
+        /* Botón de regreso */
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #444;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        .back-button:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botón de regreso -->
+    <button class="back-button" onclick="history.back()">
+        ⬅ Atrás
+    </button>
+
+    <div class="container">
+        <div class="bulb" id="bulb"></div>
+        <div class="base"></div>
+        <div class="controls">
+            <label>Modo Manual</label>
+            <label class="switch">
+                <input type="checkbox" id="modeSwitch" onchange="toggleMode()">
+                <span class="slider-switch"></span>
+            </label>
+            <label>Encender</label>
+            <label class="switch">
+                <input type="checkbox" id="toggleSwitch" onchange="toggleLight()">
+                <span class="slider-switch"></span>
+            </label>
+            <input type="range" class="slider" id="brightness" min="0" max="100" value="50" oninput="adjustBrightness()">
+            <div class="brightness-value" id="brightnessValue">Brillo: 50%</div>
+        </div>
+    </div>
+
+    <script>
+        let autoMode = false;
+
+        function toggleMode() {
+            autoMode = !autoMode;
+            document.getElementById("brightness").disabled = autoMode;
+            if (autoMode) fetchSimulatedData();
+        }
+
+        function toggleLight() {
+            adjustBrightness();
+        }
+
+        function adjustBrightness() {
+            const bulb = document.getElementById("bulb");
+            const brightness = document.getElementById("brightness").value;
+            const brightnessValue = document.getElementById("brightnessValue");
+            const isOn = document.getElementById("toggleSwitch").checked;
+            brightnessValue.textContent = `Brillo: ${brightness}%`;
+
+            if (isOn) {
+                bulb.style.backgroundColor = `rgb(255, 255, ${brightness * 0.5})`;
+                bulb.style.boxShadow = `0px 0px ${brightness / 2}px rgba(255, 255, 0, ${brightness / 100})`;
+            } else {
+                bulb.style.backgroundColor = "#888";
+                bulb.style.boxShadow = "none";
+            }
+        }
+
+        function fetchSimulatedData() {
+            if (!autoMode) return;
+            const simulatedBrightness = Math.floor(Math.random() * 100);
+            document.getElementById("brightness").value = simulatedBrightness;
+            document.getElementById("brightnessValue").textContent = `Brillo: ${simulatedBrightness}%`;
+            adjustBrightness();
+            setTimeout(fetchSimulatedData, 2000);
+        }
+
+        // Asegurar que el bombillo responda en modo manual
+        document.getElementById("brightness").addEventListener("input", function() {
+            if (!autoMode) adjustBrightness();
+        });
+
+    </script>
+</body>
+</html>
